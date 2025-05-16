@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>Websockets demonstration</title>
+    </head>
+    <body>
+        <div class="center">
+            <h1>Chat application</h1>
+            <h3 id="chat-header"> Currently in chat: General</h3>
+            <form id - "chatroom-selection">
+                <label for="chatroom">Chatroom:</label>
+                <input type="text" id="Chatroom" name="Chatroom"><br><br>
+                <input type="submit" value="Change chatroom">
+            </form>
+            <br>
+            
+            <textarea class="messagearea" id="chatmessages" readonly name="chatmessages" rows="4" cols="50" placeholder="Welcome to the chatroom">
+            </textarea>
+            <br>
+
+            <form id="chatroom-message">
+                <label for="message">Message: </label>
+                <input type="text" id="message" name="message"><br>
+                <input type="submit" value="Send message">
+            </form>
+        </div>
+        <script>
+            var selectedChat = "general";
+
+            function changeChatRoom(){
+                var newchat = document.getElementById("chatroom");
+                if(newchat != null && newchat.value != selectedChat){
+                    console.log(newchat);
+                }
+                return false;
+            }
+            function sendMessage(){
+                var newmessage = document.getElementById("message");
+                if(newmessage != null){
+                    console.log(newmessage);
+                }
+                return false;
+            }
+            window.onload = function(){
+                document.getElementById("chatroom-selection").onsubmit= changeChatRoom
+                document.getElementById("chatroom-message").onsubmit= sendMessage
+
+                if(window["WebSocket"]){
+                    console.log("supports WebSockets")
+                    //connect to WS
+                    conn = new WebSocket("ws://" + document.location.host + "/ws");
+                } else {
+                    alert("browser doesn't support websockets")
+                }
+            }
+        </script>
+    </body>
+</html>
