@@ -20,7 +20,7 @@
             <textarea class="messagearea" id="chatmessages" readonly name="chatmessages"
             rows="4" cols="50" placeholder="Welcome to the Chatroom!" ></textarea>
             <br>
-            <form id="chatroom message">
+            <form id="chatroom-message">
                 <label for="message">Message:</label>
                 <input type="text" id="message" name="message"><br><br>
                 <input type="submit" value="Send message">
@@ -48,6 +48,18 @@
                     console.log(newmessage)
                 }
                 return false;
+            }
+
+            window.onload = function(){
+                document.getElementById("chatroom-selection").onsubmit = changeChatRoom;
+                document.getElementById("chatroom-message").onsubmit = sendMessage;
+
+                if(window["WebSocket"]){
+                    console.log("supports websockets")
+                    conn = new WebSocket("ws://" + document.location.host + "/ws")
+                } else {
+                    alert("does not support websockets")
+                }
             }
         </script>
     </body>

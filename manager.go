@@ -1,34 +1,34 @@
-package main
+// package main
 
-import (
-	"log"
-	"net/http"
+// import (
+// 	"log"
+// 	"net/http"
 
-	"github.com/gorilla/websocket"
-)
+// 	"github.com/gorilla/websocket"
+// )
 
-var (
-	websocketUpgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-	}
-)
+// var (
+// 	websocketUpgrader = websocket.Upgrader{
+// 		ReadBufferSize:  1024,
+// 		WriteBufferSize: 1024,
+// 	}
+// )
 
-type Manager struct {
-}
+// type Manager struct {
+// }
 
-func NewManager() *Manager {
-	return &Manager{}
-}
+// func NewManager() *Manager {
+// 	return &Manager{}
+// }
 
-func (m *Manager) serveWS(w http.ResponseWriter, r *http.Request) {
-	log.Println("new connection")
+// func (m *Manager) serveWS(w http.ResponseWriter, r *http.Request) {
+// 	log.Println("new connection")
 
-	//upgrade regular http connection into websocket
-	conn, err := websocketUpgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err)
-	}
+// 	//upgrade regular http connection into websocket
+// 	conn, err := websocketUpgrader.Upgrade(w, r, nil)
+// 	if err != nil {
+// 		log.Println(err)
+// 	}
 
-	conn.Close()
-}
+// 	conn.Close()
+// }
