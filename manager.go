@@ -50,6 +50,7 @@ func (m *Manager) serveWS(w http.ResponseWriter, r *http.Request) {
 	// start two go routines per client
 	// one is to read messages and one is to write messages
 	go client.readMessages()
+	go client.writeMessages()
 
 }
 

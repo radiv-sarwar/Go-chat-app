@@ -56,7 +56,12 @@
 
                 if(window["WebSocket"]){
                     console.log("supports websockets")
-                    conn = new WebSocket("ws://" + document.location.host + "/ws")
+                    conn = new WebSocket("ws://" + document.location.host + "/ws");
+                    
+                    //hack to see whats up:
+                    conn.onmessage = function(evt) {
+                        console.log(evt);
+                    }
                 } else {
                     alert("does not support websockets")
                 }
