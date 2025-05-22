@@ -34,6 +34,33 @@
         <script>
             var selectedChat = "General"
 
+            class Event {
+                constructor(type, payload){
+                    this.type = type;
+                    this.payload = payload;
+                }
+            }
+
+            function routeEvent(event) {
+                if (event.type === undefined) {
+                    alert('no type field in the event');
+                }
+                switch(event.type){
+                    case "new_message":
+                        console.log("new message");
+                        break;
+                    default:
+                        alert('not type field in the event');
+                        break;
+                }
+
+            }
+
+            function sendEvent(eventName, payload) {
+                const event = new Event(eventName, payload);
+                conn.send(JSON.stringify(event));
+            }
+
             function changeChatRoom(){
                 var newchat = document.getElementById("chatroom")
                 if(newchat != null && newchat.value != selectedChat){
@@ -45,7 +72,7 @@
             function sendMessage() {
                 var newmessage = document.getElementById("message")
                 if(newmessage != null) {
-                    conn.send(newmessage.value);
+                    sendEvent("send_message", newmessage.value)
                 }
                 return false;
             }
@@ -56,11 +83,16 @@
 
                 if(window["WebSocket"]){
                     console.log("supports websockets")
+
+                    // Connect to WS
                     conn = new WebSocket("ws://" + document.location.host + "/ws");
                     
                     //hack to see whats up:
                     conn.onmessage = function(evt) {
-                        console.log(evt);
+                        const eventData = JSON.parse(evt.data);
+                        const event = Object.assign(new Event, eventData);
+
+                        routeEvent(event);
                     }
                 } else {
                     alert("does not support websockets")
