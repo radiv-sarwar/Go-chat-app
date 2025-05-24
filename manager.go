@@ -10,7 +10,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Setting a variable to use to upgrade a http connection to a websocket conn
+// Setting a variable to use to upgrade a http
+// connection to a websocket conn
 var (
 	websocketUpgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -18,15 +19,21 @@ var (
 	}
 )
 
-// This is the manager struct. Everytime a client connects, it gets assigned to a manager.
+// This is the manager struct. Everytime a
+// client connects, it gets assigned to a manager.
 // This manager saves the client in its own Clients map.
+
+// need a better name for this:
+type handlers map[string]EventHandler
+
 type Manager struct {
 	clients ClientList
 	sync.RWMutex
-	handlers map[string]EventHandler
+	handlers handlers
 }
 
-// Method to return an empty manager struct (struct starts with a zero values) when initializing.
+// Method to return an empty manager struct
+// (struct starts with a zero values) when initializing.
 func NewManager() *Manager {
 	m := &Manager{
 		clients:  make(ClientList),
