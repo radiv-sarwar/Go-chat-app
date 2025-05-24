@@ -45,6 +45,9 @@ func (c *Client) readMessages() {
 		log.Println(err)
 	}
 
+	// setting the limit of text input
+	c.connection.SetReadLimit(512)
+
 	c.connection.SetPongHandler(c.pongHandler)
 
 	for {

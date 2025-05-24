@@ -9,7 +9,7 @@
         <div class= "center">
             <h1>Chat application</h1>
             <h3 id="chat-header">Currently in chat: General</h3>
-
+            <h3 id="connection-header">Connected to Websocket: false</h3>
             <form id="chatroom-selection">
                 <label for = "chatroom">Chatroom:</label>
                 <input type="text" id="chatroom" name="chat"><br><br>
@@ -25,6 +25,15 @@
                 <input type="text" id="message" name="message"><br><br>
                 <input type="submit" value="Send message">
             </form>
+            <div style="border: 3px solid black; margin-top: 30px;">
+                <form id="login-form">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username"><br>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password"><br><br>
+                    <input type="submit" value="Login">
+                </form>
+            </div>
 
             <h6><a href="https://github.com/radiv-sarwar/Go-chat-app" target=_blank</a>>
                 My github repo for this project.
@@ -77,15 +86,43 @@
                 return false;
             }
 
-            window.onload = function(){
-                document.getElementById("chatroom-selection").onsubmit = changeChatRoom;
-                document.getElementById("chatroom-message").onsubmit = sendMessage;
+            function login(){
+                let formData = {
+                    "username": document.getElementById("username").value,
+                    "password": document.getElementById("password").value
+                }
+                fetch("login", {
+                    method: "post",
+                    body: JSON,
+                    mode: "cors"
+                }).then((response) => {
+                    if(response.ok){
+                        return response.json();
+                    } else {
+                        throw 'unauthorized';
+                    }
+                }).then((data) => {
+                    //at this point we are authenticated
+                    connectWebsocket(data.otp);
+                }).catch((e) => {alert(e)});
+                return false;
+            }
 
+            function connectwebsocket(otp){
                 if(window["WebSocket"]){
                     console.log("supports websockets")
 
                     // Connect to WS
-                    conn = new WebSocket("ws://" + document.location.host + "/ws");
+                    conn = new WebSocket("ws://" + document.location.host + "/ws?otp=".otp);
+
+                    conn.onopen = function(evt) {
+                        document.getElementById("connection-header").innerHTML = "Connected to Websockets: true";
+                    }
+                     conn.onclose = function(evt) {
+                        document.getElementById("connection-header").innerHTML = "Connected to Websockets: false";
+                    }
+
+                    
                     
                     //hack to see whats up:
                     conn.onmessage = function(evt) {
@@ -97,6 +134,14 @@
                 } else {
                     alert("does not support websockets")
                 }
+            }
+
+            window.onload = function(){
+                document.getElementById("chatroom-selection").onsubmit = changeChatRoom;
+                document.getElementById("chatroom-message").onsubmit = sendMessage;
+                document.getElementById("login-form").onsubmit = login;
+
+                
             }
         </script>
     </body>
