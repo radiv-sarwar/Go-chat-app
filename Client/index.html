@@ -93,7 +93,7 @@
                 }
                 fetch("login", {
                     method: "post",
-                    body: JSON,
+                    body: JSON.stringify(formData),
                     mode: "cors"
                 }).then((response) => {
                     if(response.ok){
@@ -108,12 +108,12 @@
                 return false;
             }
 
-            function connectwebsocket(otp){
+            function connectWebsocket(otp){
                 if(window["WebSocket"]){
                     console.log("supports websockets")
 
                     // Connect to WS
-                    conn = new WebSocket("ws://" + document.location.host + "/ws?otp=".otp);
+                    conn = new WebSocket("ws://" + document.location.host + "/ws?otp="+otp);
 
                     conn.onopen = function(evt) {
                         document.getElementById("connection-header").innerHTML = "Connected to Websockets: true";
@@ -122,9 +122,9 @@
                         document.getElementById("connection-header").innerHTML = "Connected to Websockets: false";
                     }
 
+
                     
-                    
-                    //hack to see whats up:
+                   
                     conn.onmessage = function(evt) {
                         const eventData = JSON.parse(evt.data);
                         const event = Object.assign(new Event, eventData);
@@ -140,8 +140,6 @@
                 document.getElementById("chatroom-selection").onsubmit = changeChatRoom;
                 document.getElementById("chatroom-message").onsubmit = sendMessage;
                 document.getElementById("login-form").onsubmit = login;
-
-                
             }
         </script>
     </body>

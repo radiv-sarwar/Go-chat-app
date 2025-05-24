@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -28,17 +31,19 @@ var (
 type handlers map[string]EventHandler
 
 type Manager struct {
-	clients ClientList
-	sync.RWMutex
+	clients  ClientList
 	handlers handlers
+	otps     RetentionMap
+	sync.RWMutex
 }
 
 // Method to return an empty manager struct
 // (struct starts with a zero values) when initializing.
-func NewManager() *Manager {
+func NewManager(ctx context.Context) *Manager {
 	m := &Manager{
 		clients:  make(ClientList),
 		handlers: make(map[string]EventHandler),
+		otps:     NewRetentionMap(ctx, 5*time.Second),
 	}
 	m.setupEventHandlers()
 	return m
@@ -69,6 +74,15 @@ func (m *Manager) routeEvent(event Event, c *Client) error {
 // with the client.
 func (m *Manager) serveWS(w http.ResponseWriter, r *http.Request) {
 
+	otp := r.URL.Query().Get("otp")
+	if otp == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	if !m.otps.VerifyOTP(otp) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 	// Declaring the start of a new websocket connection.
 	log.Println("Starting a new websocket connection")
 
@@ -87,6 +101,47 @@ func (m *Manager) serveWS(w http.ResponseWriter, r *http.Request) {
 	go client.readMessages()
 	go client.writeMessages()
 
+}
+
+func (m *Manager) loginHandler(w http.ResponseWriter, r *http.Request) {
+	type userLoginRequest struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	var req userLoginRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		// log.Println("here is the error.") // using this for debugging. will delete later
+		return
+	}
+
+	// hardcoding my login because I won't be implementing
+	// full on auth for now. Maybe later. Not the focus.
+	if req.Username == "aaa" && req.Password == "111" {
+		type response struct {
+			OTP string `json:"otp"`
+		}
+
+		otp := m.otps.NewOTP()
+
+		resp := response{
+			OTP: otp.Key,
+		}
+
+		data, err := json.Marshal(resp)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write(data)
+		return
+
+	}
+
+	w.WriteHeader(http.StatusUnauthorized)
 }
 
 // Function to add clients to the clients list in our manager
